@@ -1,0 +1,166 @@
+*k-means聚类分析;
+libname my "C:\P16_CDA\CDA_201607\data";
+
+*导入数据源;
+*from saslib;
+data step01;
+set my.clus_datsrc;
+run;
+
+*from excel;
+
+
+*1.数据分布(plot & excel);
+%macro Fit(inf,outf,grp_cnt,var);		
+data _null_;		
+ set &inf nobs=obs ;		
+ call symput("Base",obs/&grp_cnt);		
+ stop;		
+run;		
+proc sort data=&inf;		
+by   &var;		
+run;		
+data temp;		
+N=_N_;		
+set &inf;		
+format Grp2 4.0;		
+Grp2=INT((N-1)/&base);		
+run;		
+proc means data=temp nway noprint;		
+class  Grp2 ;		
+var &var ;		
+output out=&outf mean=;		
+run;		
+%mend;		
+		
+%Fit(step01,temp1,100,avg_sal);	
+%Fit(step01,temp2,100,kep_rat);	
+%Fit(step01,temp3,100,emp_nbr);	
+
+data temp4;
+merge temp1 temp2 temp3;
+by grp2;
+run;
+
+
+*2.异常值处理*;
+*99分位规则;
+proc contents noprint data=step01 out=step02;
+run;
+
+proc sql;
+select distinct name into:var_lst separated by ' '
+from step02
+where upcase(name) ne 'CSR_ID';
+quit;
+
+proc sql;
+select count(distinct name) into:var_qty
+from step02
+where upcase(name) ne 'CSR_ID';
+quit;
+
+proc sql;
+select distinct name into:var1 -:%cmpres(var%eval(&var_qty+0))
+from step02
+where upcase(name) ne 'CSR_ID';
+quit;
+
+%macro pts99(); 
+proc univariate data=step01 noprint; 
+         var %do i=1 %to &var_qty; 
+                                &&var&i. 
+                        %end; ; 
+         output out= tt2  p99= %do i=1 %to &var_qty; &&var&i.._p99 %end; ; 
+quit;  
+data step03; 
+        set tt2 ; 
+                do until(eof); 
+                        set step01 end=eof ; 
+                %do i=1 %to &var_qty; 
+                        if &&var&i>&&var&i.._p99 then &&var&i=&&var&i.._p99; 
+                %end; 
+                        output; 
+                end; 
+run; 
+%mend;    
+%pts99;
+
+
+*3.相关性（excel );
+proc corr data=step03 out=temp5;
+var &var_lst.;
+run;
+
+
+/*取对数;
+data step04;
+set step03 ;
+array a _all_;
+do over a;
+a=log(a+1);
+end;
+run;
+proc sort data=step04;
+by CSR_ID;
+run;
+*/
+
+*4.变量标准化*;
+proc standard data=step03 out=step05 mean=0 std=1;
+var &var_lst;
+run;
+
+
+*5.主成分分析与球面数据处理;
+*主成分分析 n=14是根据累积信息值超过85%时，主成分的数量来确定的;
+proc princomp data=step05 n=14 out=step06;
+           var &var_lst;
+run;
+
+*处理成球形数据(For EUCLID DISTANCE K-MEANS);
+proc aceclus data=step06 proportion=.2 maxiter=25 out=step07;
+var Prin:;
+run; 
+
+
+*6.聚类:single time ;
+proc fastclus data=step05
+summary maxc=5 maxiter=99 outseed=seed replace=random 
+random=1 converge=0
+out=step07_1 outstat=stat;
+var &var_lst;
+run;
+
+*聚类结果展示：每一类计算均值;
+proc sql;
+create table step07_2 as select 
+a.*,
+b.cluster
+from step01 a
+join step07_1 b
+on a.CSR_ID=b.CSR_ID;
+quit;
+proc means data=step07_2 noprint nway;
+class cluster;
+var &var_lst;
+output out=step07_3 (drop=_type_) mean=;
+run;
+
+
+
+*6.聚类:single time ;
+proc fastclus data=step05
+summary maxc=4 maxiter=99 outseed=seed replace=random 
+random=1 converge=0
+out=step07_1 outstat=stat;
+var &var_lst;
+run;
+
+proc fastclus data=step07_1(where=(cluster=3))
+summary maxc=2 maxiter=99 outseed=seed replace=random 
+random=1 converge=0
+out=step07_1a outstat=stat;
+var &var_lst;
+
+

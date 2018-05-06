@@ -1,0 +1,56 @@
+
+*clus_auto;
+*¾ÛÀàÑ­»·µü´ú*;
+data clus_stat;
+         sse=.;
+         pseudo_f=.;
+         ersq=.;
+         ccc=.;
+         test_n=.;
+         cluster_n=.;
+         stop;
+run;
+
+%macro random_centriods(dataset=,test_n=,cluster_n=,iter=);
+%do i=1 %to &test_n;     
+proc fastclus data=&dataset maxc=10 maxiter=0 outseed=seed replace=random random=&i noprint;
+var Can:;
+run;
+
+proc surveyselect data=seed seed=&i n=&cluster_n method=srs out=in_seed noprint;
+run;
+
+         %do k=1 %to &cluster_n;
+         data cluster_seed;
+                   set in_seed(obs=&k);
+         run;          
+                                           
+         proc fastclus data=&dataset seed=cluster_seed maxc=&k maxiter=&iter converge=0  out=out_&i._&k outstat=outstat_&i._&k;
+         var Can:;
+         run;
+         data sse;
+                   set out_&i._&k end=eof;
+                   x=distance*distance;
+                   sse+x;
+                   if eof=1 then output;
+                   keep sse;
+         run;
+         data ccc;
+                            set outstat_&i._&k;
+                            if _type_ in ('CCC','ERSQ','PSEUDO_F');
+                            keep _type_ over_all;
+         run;
+         proc transpose data=ccc out=ccct(drop= _name_ _label_);
+                   id _type_;
+         run;
+         data temp;
+                   merge sse ccct;
+                   test_n=&i;
+                   cluster_n=&k;
+         run;              
+         proc append base=clus_stat data=temp;
+         run; 
+         %end;
+%end;
+%mend random_centriods;
+%random_centriods(dataset=step07,test_n=10,cluster_n=10,iter=99);
