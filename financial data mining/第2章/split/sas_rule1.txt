@@ -1,0 +1,399 @@
+****************************************************************;
+******             DECISION TREE SCORING CODE             ******;
+****************************************************************;
+
+******         LENGTHS OF NEW CHARACTER VARIABLES         ******;
+LENGTH I_target  $   12; 
+LENGTH _WARN_  $    4; 
+
+******              LABELS FOR NEW VARIABLES              ******;
+label _NODE_ = '节点' ;
+label _LEAF_ = '叶' ;
+label P_target1 = '预测: target=1' ;
+label P_target0 = '预测: target=0' ;
+label Q_target1 = '未调整 P: target=1' ;
+label Q_target0 = '未调整 P: target=0' ;
+label I_target = '到: target' ;
+label U_target = '非正规化至: target' ;
+label _WARN_ = '警告' ;
+
+
+******      TEMPORARY VARIABLES FOR FORMATTED VALUES      ******;
+LENGTH _ARBFMT_12 $     12; DROP _ARBFMT_12; 
+_ARBFMT_12 = ' '; /* Initialize to avoid warning. */
+
+
+******             ASSIGN OBSERVATION TO NODE             ******;
+IF  NOT MISSING(F43 ) AND 
+  F43  <                 14.5 THEN DO;
+  _NODE_  =                    2;
+  _LEAF_  =                    1;
+  P_target1  =                    0;
+  P_target0  =                    1;
+  Q_target1  =                    0;
+  Q_target0  =                    1;
+  I_target  = '0' ;
+  U_target  =                    0;
+  END;
+ELSE IF  NOT MISSING(F43 ) AND 
+                  14.5 <= F43  AND
+  F43  <                 89.5 THEN DO;
+  IF  NOT MISSING(F72 ) AND 
+    F72  <                  3.5 THEN DO;
+    _NODE_  =                    5;
+    _LEAF_  =                    2;
+    P_target1  =                  0.1;
+    P_target0  =                  0.9;
+    Q_target1  =                  0.1;
+    Q_target0  =                  0.9;
+    I_target  = '0' ;
+    U_target  =                    0;
+    END;
+  ELSE IF  NOT MISSING(F72 ) AND 
+                    61.5 <= F72  THEN DO;
+    _NODE_  =                    7;
+    _LEAF_  =                   12;
+    P_target1  =     0.12903225806451;
+    P_target0  =     0.87096774193548;
+    Q_target1  =     0.12903225806451;
+    Q_target0  =     0.87096774193548;
+    I_target  = '0' ;
+    U_target  =                    0;
+    END;
+  ELSE DO;
+    IF  NOT MISSING(F35 ) AND 
+                       0.5 <= F35  AND
+      F35  <                  3.5 THEN DO;
+      IF  NOT MISSING(F24 ) AND 
+                         0.5 <= F24  AND
+        F24  <                  2.5 THEN DO;
+        _NODE_  =                   24;
+        _LEAF_  =                    9;
+        P_target1  =     0.06060606060606;
+        P_target0  =     0.93939393939393;
+        Q_target1  =     0.06060606060606;
+        Q_target0  =     0.93939393939393;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE IF  NOT MISSING(F24 ) AND 
+                         2.5 <= F24  THEN DO;
+        _NODE_  =                   25;
+        _LEAF_  =                   10;
+        P_target1  =                    0;
+        P_target0  =                    1;
+        Q_target1  =                    0;
+        Q_target0  =                    1;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE DO;
+        _NODE_  =                   23;
+        _LEAF_  =                    8;
+        P_target1  =                    0;
+        P_target0  =                    1;
+        Q_target1  =                    0;
+        Q_target0  =                    1;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      END;
+    ELSE IF  NOT MISSING(F35 ) AND 
+                       3.5 <= F35  THEN DO;
+      _NODE_  =                   13;
+      _LEAF_  =                   11;
+      P_target1  =                    0;
+      P_target0  =                    1;
+      Q_target1  =                    0;
+      Q_target0  =                    1;
+      I_target  = '0' ;
+      U_target  =                    0;
+      END;
+    ELSE DO;
+      IF  NOT MISSING(F6 ) AND 
+                         1.5 <= F6  AND
+        F6  <                 10.5 THEN DO;
+        _NODE_  =                   21;
+        _LEAF_  =                    6;
+        P_target1  =                    0;
+        P_target0  =                    1;
+        Q_target1  =                    0;
+        Q_target0  =                    1;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE IF  NOT MISSING(F6 ) AND 
+                        10.5 <= F6  THEN DO;
+        _NODE_  =                   22;
+        _LEAF_  =                    7;
+        P_target1  =     0.06382978723404;
+        P_target0  =     0.93617021276595;
+        Q_target1  =     0.06382978723404;
+        Q_target0  =     0.93617021276595;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE DO;
+        IF  NOT MISSING(F41 ) AND 
+          F41  <                  0.5 THEN DO;
+          _NODE_  =                   34;
+          _LEAF_  =                    3;
+          P_target1  =     0.01851851851851;
+          P_target0  =     0.98148148148148;
+          Q_target1  =     0.01851851851851;
+          Q_target0  =     0.98148148148148;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE IF  NOT MISSING(F41 ) AND 
+                           0.5 <= F41  AND
+          F41  <                  6.5 THEN DO;
+          _NODE_  =                   35;
+          _LEAF_  =                    4;
+          P_target1  =     0.10714285714285;
+          P_target0  =     0.89285714285714;
+          Q_target1  =     0.10714285714285;
+          Q_target0  =     0.89285714285714;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE DO;
+          _NODE_  =                   36;
+          _LEAF_  =                    5;
+          P_target1  =     0.01666666666666;
+          P_target0  =     0.98333333333333;
+          Q_target1  =     0.01666666666666;
+          Q_target0  =     0.98333333333333;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        END;
+      END;
+    END;
+  END;
+ELSE DO;
+  IF  NOT MISSING(F56 ) AND 
+                     4.5 <= F56  AND
+    F56  <                  5.5 THEN DO;
+    _NODE_  =                    9;
+    _LEAF_  =                   21;
+    P_target1  =     0.21428571428571;
+    P_target0  =     0.78571428571428;
+    Q_target1  =     0.21428571428571;
+    Q_target0  =     0.78571428571428;
+    I_target  = '0' ;
+    U_target  =                    0;
+    END;
+  ELSE IF  NOT MISSING(F56 ) AND 
+                     5.5 <= F56  THEN DO;
+    IF  NOT MISSING(F72 ) AND 
+      F72  <                 21.5 THEN DO;
+      _NODE_  =                   17;
+      _LEAF_  =                   22;
+      P_target1  =     0.16666666666666;
+      P_target0  =     0.83333333333333;
+      Q_target1  =     0.16666666666666;
+      Q_target0  =     0.83333333333333;
+      I_target  = '0' ;
+      U_target  =                    0;
+      END;
+    ELSE IF  NOT MISSING(F72 ) AND 
+                     116.5 <= F72  THEN DO;
+      _NODE_  =                   19;
+      _LEAF_  =                   30;
+      P_target1  =                    0;
+      P_target0  =                    1;
+      Q_target1  =                    0;
+      Q_target0  =                    1;
+      I_target  = '0' ;
+      U_target  =                    0;
+      END;
+    ELSE DO;
+      IF  NOT MISSING(F37 ) AND 
+                         5.5 <= F37  AND
+        F37  <                 11.5 THEN DO;
+        _NODE_  =                   32;
+        _LEAF_  =                   26;
+        P_target1  =                    0;
+        P_target0  =                    1;
+        Q_target1  =                    0;
+        Q_target0  =                    1;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE IF  NOT MISSING(F37 ) AND 
+                        11.5 <= F37  THEN DO;
+        IF  NOT MISSING(F41 ) AND 
+                          10.5 <= F41  AND
+          F41  <                 23.5 THEN DO;
+          _NODE_  =                   44;
+          _LEAF_  =                   28;
+          P_target1  =                    0;
+          P_target0  =                    1;
+          Q_target1  =                    0;
+          Q_target0  =                    1;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE IF  NOT MISSING(F41 ) AND 
+                          23.5 <= F41  THEN DO;
+          _NODE_  =                   45;
+          _LEAF_  =                   29;
+          P_target1  =     0.18181818181818;
+          P_target0  =     0.81818181818181;
+          Q_target1  =     0.18181818181818;
+          Q_target0  =     0.81818181818181;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE DO;
+          _NODE_  =                   43;
+          _LEAF_  =                   27;
+          P_target1  =                0.125;
+          P_target0  =                0.875;
+          Q_target1  =                0.125;
+          Q_target0  =                0.875;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        END;
+      ELSE DO;
+        IF  NOT MISSING(F43 ) AND 
+          F43  <                111.5 THEN DO;
+          _NODE_  =                   40;
+          _LEAF_  =                   23;
+          P_target1  =      0.0281690140845;
+          P_target0  =     0.97183098591549;
+          Q_target1  =      0.0281690140845;
+          Q_target0  =     0.97183098591549;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE IF  NOT MISSING(F43 ) AND 
+                         111.5 <= F43  AND
+          F43  <                130.5 THEN DO;
+          _NODE_  =                   41;
+          _LEAF_  =                   24;
+          P_target1  =     0.11940298507462;
+          P_target0  =     0.88059701492537;
+          Q_target1  =     0.11940298507462;
+          Q_target0  =     0.88059701492537;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE DO;
+          _NODE_  =                   42;
+          _LEAF_  =                   25;
+          P_target1  =     0.01818181818181;
+          P_target0  =     0.98181818181818;
+          Q_target1  =     0.01818181818181;
+          Q_target0  =     0.98181818181818;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        END;
+      END;
+    END;
+  ELSE DO;
+    IF  NOT MISSING(F29 ) AND 
+      F29  <                  0.5 THEN DO;
+      _NODE_  =                   14;
+      _LEAF_  =                   13;
+      P_target1  =     0.23333333333333;
+      P_target0  =     0.76666666666666;
+      Q_target1  =     0.23333333333333;
+      Q_target0  =     0.76666666666666;
+      I_target  = '0' ;
+      U_target  =                    0;
+      END;
+    ELSE IF  NOT MISSING(F29 ) AND 
+                        43 <= F29  THEN DO;
+      IF  NOT MISSING(F72 ) AND 
+        F72  <                 70.5 THEN DO;
+        _NODE_  =                   29;
+        _LEAF_  =                   19;
+        P_target1  =     0.16129032258064;
+        P_target0  =     0.83870967741935;
+        Q_target1  =     0.16129032258064;
+        Q_target0  =     0.83870967741935;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE DO;
+        _NODE_  =                   30;
+        _LEAF_  =                   20;
+        P_target1  =      0.0188679245283;
+        P_target0  =     0.98113207547169;
+        Q_target1  =      0.0188679245283;
+        Q_target0  =     0.98113207547169;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      END;
+    ELSE DO;
+      IF  NOT MISSING(F72 ) AND 
+                        76.5 <= F72  AND
+        F72  <                 93.5 THEN DO;
+        _NODE_  =                   27;
+        _LEAF_  =                   17;
+        P_target1  =      0.1578947368421;
+        P_target0  =     0.84210526315789;
+        Q_target1  =      0.1578947368421;
+        Q_target0  =     0.84210526315789;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE IF  NOT MISSING(F72 ) AND 
+                        93.5 <= F72  THEN DO;
+        _NODE_  =                   28;
+        _LEAF_  =                   18;
+        P_target1  =                    0;
+        P_target0  =                    1;
+        Q_target1  =                    0;
+        Q_target0  =                    1;
+        I_target  = '0' ;
+        U_target  =                    0;
+        END;
+      ELSE DO;
+        IF  NOT MISSING(F37 ) AND 
+                           2.5 <= F37  AND
+          F37  <                  5.5 THEN DO;
+          _NODE_  =                   38;
+          _LEAF_  =                   15;
+          P_target1  =     0.16666666666666;
+          P_target0  =     0.83333333333333;
+          Q_target1  =     0.16666666666666;
+          Q_target0  =     0.83333333333333;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE IF  NOT MISSING(F37 ) AND 
+                           5.5 <= F37  THEN DO;
+          _NODE_  =                   39;
+          _LEAF_  =                   16;
+          P_target1  =      0.0204081632653;
+          P_target0  =     0.97959183673469;
+          Q_target1  =      0.0204081632653;
+          Q_target0  =     0.97959183673469;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        ELSE DO;
+          _NODE_  =                   37;
+          _LEAF_  =                   14;
+          P_target1  =     0.02711864406779;
+          P_target0  =      0.9728813559322;
+          Q_target1  =     0.02711864406779;
+          Q_target0  =      0.9728813559322;
+          I_target  = '0' ;
+          U_target  =                    0;
+          END;
+        END;
+      END;
+    END;
+  END;
+
+****************************************************************;
+******          END OF DECISION TREE SCORING CODE         ******;
+****************************************************************;
+
